@@ -17,7 +17,7 @@
 # ---------------------------------------------------------------------------
 
 import re
-
+import csv
 import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -37,6 +37,71 @@ PGX_TO_TASK_NAMES = {
 }
 
 RSID_PATTERN = re.compile(r"^rs\d+$")
+
+# Part A
+def read_chip(path): 
+    """Return a DataFrame from a chip file"""
+    df = pd.read_csv(
+            path, 
+            sep='\t', 
+            names = ['CHR', 'POS', 'dbSNP_ID', 'ALLELE'],
+            header=None
+            )
+    df = df.rename(columns={'ALLELE': 'ALLELE_23andme'})
+    return df
+
+def read_pharmgkb(path): 
+    """Return a DataFrame from the Annotation File"""
+    df = pd.read_csv(
+            path, 
+            sep ='\t',
+            quoting=csv.QUOTE_NONE
+            )
+    df = df.rename(columns={'Alleles': 'ALLELE_PharmGKB'})
+    return df
+
+def split_column(df, col):
+    """
+    For DataFrames that have a column that contain more than 1
+    variant, split each variant (using ',' as the key) into 
+    individual rows
+    """
+    df[col] = df[col].str.split(',')
+    df = df.explode(col)
+    return df
+
+def merge_chip_pharmgkb(chip, pgx): 
+    """
+    Merge the Chip Table with the Annotation table on the
+    dsSNP_ID/Variant. It will keep the following columns: 
+    dbSNP_ID, GENE_SYMBOL, DRUG_NAME, PMID, PHENOTYPE_CATEGORY, 
+    SIGNIFICANCE, ASSOCIATED, DIRECTION, NOTES, SENTENCE, 
+    ALLELE_PharmGKB, and ALLELE_23andme.
+    """
+    merged_df = pd.merge(
+                chip, 
+                pgx, 
+                left_on="dbSNP_ID", 
+                right_on="Variant/Haplotypes", 
+                how="inner"
+                )
+
+    cols_to_keep = [
+        'dbSNP_ID', 
+        'Gene',
+        'Drug(s)', 
+        'PMID', 
+        'Phenotype Category', 
+        'Significance', 
+        'Is/Is Not associated', 
+        'Direction of effect', 
+        'Notes', 
+        'Sentence', 
+        'ALLELE_PharmGKB', 
+        'ALLELE_23andme'
+    ]
+    
+    return merged_df.loc[:, cols_to_keep]
 
 
 def _find_column(table, *names):
