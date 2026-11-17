@@ -1,7 +1,6 @@
 # This file contains the functions needed for Final Project 1 in BIOINF 575
 # Instructor: Cristina Mitrea Fall 2027
 # Authors: Sally Alma'ani, Lauren Jeffery, Davis Sineath
-
 ###
 # ---------------------------------------------------------------------------
 # Part B - Sally Alma'ani
@@ -200,3 +199,99 @@ def person_report(evidence, genotypes, parse_alleles, carrier_status):
     columns = ["dbSNP_ID", "GENE_SYMBOL", "DRUG_NAME", "LEVEL", "DIRECTION",
                "ALLELE_PharmGKB", "GENOTYPE", "CARRIER"]
     return report[columns]
+
+
+###
+#Part C: Lauren Jeffery
+#read_clinical_variants
+#split_column
+#strongest_evidence (task 4)
+#parse_alleles (task 5)
+#carrier_status (task 5)
+#please don't ask me to format this further
+
+def read_clinical_variants(path):
+    """
+    Loading in clinical variants. Takes the path to a tsv file storing clinical data.
+
+
+    Returns filtered: dataframe of columns variant (rsid), gene, evidence (level of evidence),
+    and drug. 
+    """
+    df = pd.read_csv(
+        path,
+        sep="\t",
+        names = ["Variant","Gene","Type","Evidence","Drug","Phenotype"],
+        header = None
+    )
+
+    filtered = df[df["Variant"].str.startswith("rs", na=False)]
+    filtered = split_column(filtered, "Drug")
+
+    filtered = filtered[["Variant","Gene","Evidence","Drug"]]
+    return filtered
+
+
+
+
+def strongest_evidence(map_table, clinical):
+    """
+    Takes mapped file (output of task 2, with cols dbSNP_ID, Gene, Drug(s), Direction of effect, Sentence,
+    ALLELE_PharmGKB, ALLELE_23andme) and merges it with clinical variants w/ cols Variant (rsid only),
+    level of evidence, and drug.
+
+    Outputs table with only strong evidence sorted by strength of evidence.
+    Sources:
+    https://www.geeksforgeeks.org/pandas/merge-join-two-dataframes-on-multiple-columns-in-pandas/
+    https://www.reddit.com/r/learnpython/comments/1dle3a2/panda_filter_multiple_columns_by_multiple_values/
+    https://www.tutorialspoint.com/article/python-pandas-remove-leading-and-trailing-whitespace-from-more-than-one-column
+
+    Also used VSCode chat function to troubleshoot this function. Ghost suggestions enabled.
+    """
+    map_table = split_column(map_table, "Drug(s)")
+    map_table["Drug(s)"] = map_table["Drug(s)"].str.strip()
+    
+    clinical_kept = clinical[["Variant","Evidence","Drug"]]
+
+    merged_df = pd.merge(
+        map_table,
+        clinical_kept,
+        left_on=["dbSNP_ID","Drug(s)"],
+        right_on=["Variant","Drug"],
+        how="inner"
+    )
+    
+    filtered_merged = merged_df[merged_df["Evidence"].isin(["1A","1B","2A","2B"])]
+    filtered_merged.sort_values("Evidence",ascending=False)
+    
+    return filtered_merged
+    
+
+
+def parse_alleles(input_string):
+    """
+    Split up alleles. I sure hope they're all formatted the same way. 
+    source: https://stackoverflow.com/questions/8270092/remove-all-whitespace-in-a-string
+
+    Ghost suggestions enabled in VSCode.
+    """
+    split_string = input_string.strip().replace(" ","")
+    split_string = split_string.split("+")
+    return split_string
+
+
+def carrier_status(input_statusA, input_statusB):
+    """
+    Again, not super clear on this one based on the assignment, but should
+    make it so the reverse allele (GA rather than AG) is still considered a 
+    carrier. 
+
+    Carrier status yields a "yes". Non-carrier status yields a "no". 
+    Used VSCode chat function to troubleshoot this function. Ghost suggestions enabled. 
+    """
+    rev_stat_A = input_statusA[::-1]
+    if rev_stat_A in input_statusB:
+        return "yes"
+
+    else:
+        return "no"
