@@ -30,6 +30,20 @@
       plot_simulation(counts, path) -> histogram of level-1A alleles per person  
 
    Lauren Jeffery:
+   Question: Some genes are linked to increased toxicity of certain drugs, while others are linked to efficacy.
+   Are there genes leading to mostly decreased effect in one or more drugs, and are they associated with toxicity? What about efficacy?
+        Functions:
+        get_clinvar_effect(map[rsid, gene, drug, direction of effect], clinical_variants[rsid, gene, drug, type]) > merged table (mapped_clinical)
+            merged_table has columns [rsid, gene, drug, type, direction of effect]
+            ex: get_clinvar_effect(["rs1","gene1","drug1","decreased"], ["rs1","gene1","drug1","toxicity"]) > ["rs1","gene1","drug1","toxicity","decreased"]
+        effect_count("increased","decreased") > ({Gene:{increased: 1, decreased: 1}})
+            for a given gene, count the number of increased and decreased effects.
+        type_count("toxicity","efficacy") > ({Gene:{toxicity: 1, efficacy: 1}})
+            Does the same thing as effect_count for type 
+   
+        Ultimate goal: for genes in files, calculate the fraction associated with decreased effect, save values over a
+        certain threshold (>50%?), and report the fraction of toxicity vs. efficacy associated with said gene/drug.
+
 
    Davis Sineath:
         Parse the sentence field and compare to a persons report. Look for 
