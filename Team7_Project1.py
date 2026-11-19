@@ -16,7 +16,18 @@
 # so they keep working if the team renames columns later.
 # ---------------------------------------------------------------------------
 """ Additional features: 
-   Sally Alma'ani: 
+      Sally Almaani: how many people carry a level-1A allele?
+      Among 1,000 simulated people, what fraction carries at least one allele whose
+      drug-response association has level 1A evidence? For each level-1A rsID, the
+      population frequency of the effect allele (gnomAD) gives each person
+      two copies drawn independently, carrier
+      status uses carrier_status (like task 5) 
+   
+      read_allele_frequencies(path) -> {rsID: (ref, alt, alt_frequency)}          
+      simulate_genotypes(frequencies, n_people=1000, seed=575) -> people x rsIDs   
+      carriers_1a(simulated, evidence, parse_alleles, carrier_status) -> Series 
+      estimate_carrier_fraction(frequencies, evidence, n_repeats=200) -> dict
+      plot_simulation(counts, path) -> histogram of level-1A alleles per person  
 
    Lauren Jeffery:
 
