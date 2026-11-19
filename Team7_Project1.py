@@ -1,7 +1,7 @@
 # This file contains the functions needed for Final Project 1 in BIOINF 575
 # Instructor: Cristina Mitrea Fall 2027
 # Authors: Sally Alma'ani, Lauren Jeffery, Davis Sineath
-###
+#
 # ---------------------------------------------------------------------------
 # Part B - Sally Alma'ani
 #   filter_associations   tasks 2 and 3
@@ -15,6 +15,30 @@
 #   - the task names ("SIGNIFICANCE", "GENE_SYMBOL", ...)
 # so they keep working if the team renames columns later.
 # ---------------------------------------------------------------------------
+""" Additional features: 
+   Sally Alma'ani: 
+
+   Lauren Jeffery:
+
+   Davis Sineath:
+        Parse the sentence field and compare to a persons report. Look for 
+        "increase/decrease" in relation to a genotype. If the person's 
+        genotype is implicated in a different response, mark it for 
+        investigation. I will use 3 functions to accomplish this.
+        
+        parse_sentence(): will look for increase/decrease and a genotype
+        in the sentence. If there is increase/decrease and a genotype it 
+        will return genotype, effect.
+
+        compare_to_consensus(): will check if the increase/decrease from the
+        parse_sentence() matches the annotation consensus. If it does not 
+        match the consensus it will get added to a dataframe for disagreeing 
+        sentence and annotation consensus. 
+
+        check_report(): will check if any of the disagreeing consensus variants
+        and drugs are found on the person's report and flag them for investigation.
+    
+"""
 
 import re
 import csv
